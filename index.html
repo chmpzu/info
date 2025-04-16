@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Product Fitment and Specification</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #fff8dc;
+      color: #333;
+      padding: 20px;
+    }
+
+    h1 {
+      color: #d4af37;
+      text-align: center;
+    }
+
+    .search-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .search-group {
+      display: flex;
+      align-items: center;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      overflow: hidden;
+      background-color: #fff;
+    }
+
+    .search-group input {
+      border: none;
+      padding: 10px;
+      width: 200px;
+      outline: none;
+      font-size: 16px;
+    }
+
+    .search-group button {
+      background-color: #f1c40f;
+      border: none;
+      padding: 10px 14px;
+      cursor: pointer;
+    }
+
+    .search-group button:hover {
+      background-color: #d4af37;
+    }
+
+    .search-group button svg {
+      width: 16px;
+      height: 16px;
+      fill: #fff;
+    }
+
+    .result-box {
+      background-color: #fffdf0;
+      border: 1px solid #eee;
+      padding: 15px;
+      margin-bottom: 30px;
+      font-size: 16px;
+      border-radius: 6px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background-color: #fffef3;
+      font-family: Arial, sans-serif;
+      color: #333;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #fff2aa;
+      font-weight: bold;
+    }
+
+    td {
+      background-color: #fff;
+    }
+  </style>
+</head>
+<body>
+  <h1>Product Fitment and Specification</h1>
+
+  <div class="search-container">
+    <!-- VIN Search -->
+    <div class="search-group">
+      <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="if(event.key === 'Enter') searchByVIN()">
+      <button onclick="searchByVIN()">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
+    </div>
+
+    <!-- OEM Search -->
+    <div class="search-group">
+      <input type="text" id="oemInput" placeholder="Enter OEM" onkeydown="if(event.key === 'Enter') searchOEMPartslink('oem')">
+      <button onclick="searchOEMPartslink('oem')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
+    </div>
+
+    <!-- Partslink Search -->
+    <div class="search-group">
+      <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="if(event.key === 'Enter') searchOEMPartslink('partslink')">
+      <button onclick="searchOEMPartslink('partslink')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Vehicle Info Result Box -->
+  <div class="result-box" id="vehicleResult">VIN results will appear here.</div>
+
+  <!-- Parts Info Result Box with Table -->
+  <div class="result-box">
+    <table id="partResult">
+      <thead>
+        <tr>
+          <th>OEM Number</th>
+          <th>Partslink Number</th>
+          <th>Part Type</th>
+          <th>Dimensions (in)</th>
+          <th>Weight (lbs)</th>
+          <th>Bulb Included</th>
+          <th>Bulb Type</th>
+          <th>Material</th>
+          <th>Color</th>
+          <th>Finish</th>
+          <th>Certification</th>
+          <th>Position</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="13" style="text-align:center;">Part results will appear here.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    // VIN Search Functionality
+    async function searchByVIN() {
+      const vin = document.getElementById("vinInput").value.trim();
+      if (vin.length !== 17) {
+        alert("VIN must be 17 characters.");
+        return;
+      }
+      document.getElementById("vinInput").value = "";
+
+      // Clear VIN result box
+      document.getElementById("vehicleResult").innerHTML = "";
+
+      // Clear the part result table
+      const tbody = document.querySelector("#partResult tbody");
+      tbody.innerHTML = "<tr><td colspan='13' style='text-align:center;'>Part results will appear here.</td></tr>";
+
+      try {
+        const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
+        const data = await res.json();
+        const info = data.Results[0];
+
+        const displayText = `
+<b>Make:</b> ${info.Make}<br>
+<b>Model:</b> ${info.Model}<br>
+<b>Year:</b> ${info.ModelYear}<br>
+<b>Body:</b> ${info.BodyClass}<br>
+<b>Trim:</b> ${info.Trim}<br>
+<b>Engine:</b> ${info.EngineModel || 'N/A'} (${info.EngineCylinders || '?'} Cyl)<br>
+<b>Fuel Type:</b> ${info.FuelTypePrimary}<br>
+<b>Drive Type:</b> ${info.DriveType}<br>
+<b>GVWR:</b> ${info.GVWR || 'N/A'}
+        `;
+        document.getElementById("vehicleResult").innerHTML = displayText;
+      } catch (err) {
+        document.getElementById("vehicleResult").textContent = "Error decoding VIN.";
+        console.error(err);
+      }
+    }
+
+    // OEM and Partslink Search Functionality
+    async function searchOEMPartslink(type) {
+      const inputId = type === 'oem' ? 'oemInput' : 'partslinkInput';
+      const value = document.getElementById(inputId).value.trim().toLowerCase();
+      if (!value) return;
+      document.getElementById(inputId).value = "";
+
+      // Clear VIN result
+      document.getElementById("vehicleResult").innerHTML = "VIN results will appear here.";
+
+      const tbody = document.querySelector("#partResult tbody");
+      tbody.innerHTML = "<tr><td colspan='13' style='text-align:center;'>Searching...</td></tr>";
+
+      try {
+        const res = await fetch("oem_partslink_data.json");  // Make sure this path is correct
+        const data = await res.json();
+
+        const results = data.filter(item => item[type].toLowerCase() === value);
+        tbody.innerHTML = "";
+
+        if (results.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;">No results found.</td></tr>`;
+          return;
+        }
+
+        results.forEach(p => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${p.oem}</td>
+            <td>${p.partslink}</td>
+            <td>${p.part_type}</td>
+            <td>${p.dimensions}</td>
+            <td>${p.weight}</td>
+            <td>${p.bulb_included}</td>
+            <td>${p.bulb_type}</td>
+            <td>${p.material}</td>
+            <td>${p.color}</td>
+            <td>${p.finish}</td>
+            <td>${p.certification}</td>
+            <td>${p.position}</td>
+            <td>${p.note}</td>
+          `;
+          tbody.appendChild(row);
+        });
+
+      } catch (err) {
+        tbody.innerHTML = `<tr><td colspan="13" style="text-align:center;">Error loading parts data.</td></tr>`;
+        console.error(err);
+      }
+    }
+  </script>
+</body>
+</html>

@@ -84,7 +84,7 @@ function extractFields(note, fieldNames) {
   if (!note) return '';
   const fields = [];
   fieldNames.forEach(name => {
-    const regex = new RegExp(name + '\\s*:\\s*([^,]+)', 'i');
+    const regex = new RegExp(`${name}\\s*:\\s*([^,]+)`, 'i');
     const match = note.match(regex);
     if (match) {
       fields.push(`${name}: ${match[1].trim()}`);
@@ -175,7 +175,7 @@ async function searchOEMPartslink(type) {
 
     results.forEach(item => {
       const dimensions = `${item.Length || '0'} x ${item.Width || '0'} x ${item.Height || '0'}`;
-      const customNote = extractFields(item["Note"], ["Material", "Part Type"]);
+      const customNote = extractFields(item["Note"], ["Material", "Part", "Color"]);
 
       const row = document.createElement("tr");
       row.innerHTML = `

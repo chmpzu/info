@@ -5,84 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product Fitment and Specification</title>
 
-  <!-- PapaParse Library -->
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #fff8dc;
-      color: #333;
-      padding: 20px;
-    }
-    h1 {
-      color: #d4af37;
-      text-align: center;
-    }
-    .search-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-    .search-group {
-      display: flex;
-      align-items: center;
-      border: 1px solid #ccc;
-      border-radius: 6px;
-      overflow: hidden;
-      background-color: #fff;
-    }
-    .search-group input {
-      border: none;
-      padding: 10px;
-      width: 200px;
-      outline: none;
-      font-size: 16px;
-    }
-    .search-group button {
-      background-color: #f1c40f;
-      border: none;
-      padding: 10px 14px;
-      cursor: pointer;
-    }
-    .search-group button:hover {
-      background-color: #d4af37;
-    }
-    .search-group button svg {
-      width: 16px;
-      height: 16px;
-      fill: #fff;
-    }
-    .result-box {
-      background-color: #fffdf0;
-      border: 1px solid #eee;
-      padding: 15px;
-      margin-bottom: 30px;
-      font-size: 16px;
-      border-radius: 6px;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-      background-color: #fffef3;
-      font-family: Arial, sans-serif;
-      color: #333;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: center;
-    }
-    th {
-      background-color: #fff2aa;
-      font-weight: bold;
-    }
-    td {
-      background-color: #fff;
-    }
+    body { font-family: Arial, sans-serif; background-color: #fff8dc; color: #333; padding: 20px; }
+    h1 { color: #d4af37; text-align: center; }
+    .search-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+    .search-group { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; background-color: #fff; }
+    .search-group input { border: none; padding: 10px; width: 200px; outline: none; font-size: 16px; }
+    .search-group button { background-color: #f1c40f; border: none; padding: 10px 14px; cursor: pointer; }
+    .search-group button:hover { background-color: #d4af37; }
+    .search-group button svg { width: 16px; height: 16px; fill: #fff; }
+    .result-box { background-color: #fffdf0; border: 1px solid #eee; padding: 15px; margin-bottom: 30px; font-size: 16px; border-radius: 6px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fffef3; color: #333; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    th { background-color: #fff2aa; font-weight: bold; }
+    td { background-color: #fff; }
   </style>
 </head>
 <body>
@@ -137,7 +75,10 @@
 </div>
 
 <script>
-const csvFiles = ["parts_data.csv", "oem_master_2.csv", "oem_master_3.csv"];
+async function fetchCSVList() {
+  const res = await fetch("csv_manifest.json");
+  return await res.json();
+}
 
 function extractFields(note, fieldNames) {
   if (!note) return '';
@@ -165,7 +106,7 @@ async function loadAllCSVs(files) {
       const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
       allData.push(...parsed.data);
     } catch (err) {
-      console.error(`Error loading ${file}:`, err);
+      console.warn(`Skipping file ${file}:`, err);
     }
   }
   return allData;
@@ -217,6 +158,7 @@ async function searchOEMPartslink(type) {
   tbody.innerHTML = "<tr><td colspan='12' style='text-align:center;'>Searching...</td></tr>";
 
   try {
+    const csvFiles = await fetchCSVList();
     const data = await loadAllCSVs(csvFiles);
 
     const results = data.filter(item =>

@@ -185,7 +185,10 @@
       if (type==='sku') {
         const sup = document.getElementById('supplierSelect').value;
         if (!sup) { alert('Please select a supplier.'); return; }
-        data = await loadCSV(`${sup}1.csv`);
+        // Load all CSVs for the selected supplier dynamically
+        const allFiles = await fetchCSVList();
+        const supplierFiles = allFiles.filter(f => f.toUpperCase().startsWith(sup.toUpperCase()));
+        data = await loadAllCSVs(supplierFiles);
       } else {
         const fs = await fetchCSVList();
         data = await loadAllCSVs(fs);

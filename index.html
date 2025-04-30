@@ -8,9 +8,10 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
-    body { font-family: Arial, sans-serif; background-color: #fff8dc; color: #333; padding: 20px; }
-    h1 { color: #d4af37; text-align: center; }
-    .search-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+    body { position: relative; font-family: Arial, sans-serif; background-color: #fff8dc; color: #333; padding: 20px; }
+    h1 { color: #d4af37; text-align: center; margin: 0; }
+    .author { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #666; }
+    .search-container { display: flex; justify-content: center; gap: 10px; margin: 60px 0 30px; flex-wrap: wrap; }
     .search-group { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; background-color: #fff; }
     .search-group input { border: none; padding: 10px; width: 200px; outline: none; font-size: 16px; }
     .search-group button { background-color: #f1c40f; border: none; padding: 10px 14px; cursor: pointer; }
@@ -18,189 +19,177 @@
     .search-group button svg { width: 16px; height: 16px; fill: #fff; }
     .result-box { background-color: #fffdf0; border: 1px solid #eee; padding: 15px; margin-bottom: 30px; font-size: 16px; border-radius: 6px; }
     table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fffef3; color: #333; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; }
+    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; vertical-align: top; }
     th { background-color: #fff2aa; font-weight: bold; }
     td { background-color: #fff; }
+    details { text-align: left; }
+    details summary { cursor: pointer; font-weight: bold; }
   </style>
 </head>
 <body>
 
-<h1>Product Fitment and Specification</h1>
+  <h1>Product Fitment and Specification</h1>
+  <div class="author">By: Christine Anastacio</div>
 
-<div class="search-container">
-  <div class="search-group">
-    <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="if(event.key === 'Enter') searchByVIN()">
-    <button onclick="searchByVIN()">
-      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
-    </button>
+  <div class="search-container">
+    <div class="search-group">
+      <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="if(event.key === 'Enter') searchByVIN()">
+      <button onclick="searchByVIN()">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
+    </div>
+    <div class="search-group">
+      <input type="text" id="skuInput" placeholder="Enter SKU" onkeydown="if(event.key === 'Enter') searchParts('sku')">
+      <button onclick="searchParts('sku')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
+    </div>
+    <div class="search-group">
+      <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="if(event.key === 'Enter') searchParts('partslink')">
+      <button onclick="searchParts('partslink')">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+      </button>
+    </div>
   </div>
-  <div class="search-group">
-    <input type="text" id="oemInput" placeholder="Enter OEM" onkeydown="if(event.key === 'Enter') searchOEMPartslink('oem')">
-    <button onclick="searchOEMPartslink('oem')">
-      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
-    </button>
+
+  <div class="result-box" id="vehicleResult">VIN results will appear here.</div>
+
+  <div class="result-box">
+    <table id="partResult">
+      <thead>
+        <tr>
+          <th>OEM Number</th>
+          <th>Partslink Number</th>
+          <th>Item SKU</th>
+          <th>Title</th>
+          <th>Supplier</th>
+          <th>Seller Cost</th>
+          <th>Dimensions (in)</th>
+          <th>Weight (lbs)</th>
+          <th>Bulb Included</th>
+          <th>Bulb Type</th>
+          <th>Position</th>
+          <th>Note</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="12" style="text-align:center;">Part results will appear here.</td></tr>
+      </tbody>
+    </table>
   </div>
-  <div class="search-group">
-    <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="if(event.key === 'Enter') searchOEMPartslink('partslink')">
-    <button onclick="searchOEMPartslink('partslink')">
-      <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
-    </button>
-  </div>
-</div>
 
-<div class="result-box" id="vehicleResult">VIN results will appear here.</div>
-
-<div class="result-box">
-  <table id="partResult">
-    <thead>
-      <tr>
-        <th>OEM Number</th>
-        <th>Partslink Number</th>
-        <th>Item SKU</th>
-        <th>Title</th>
-        <th>Supplier</th>
-        <th>Seller Cost</th>
-        <th>Dimensions (in)</th>
-        <th>Weight (lbs)</th>
-        <th>Bulb Included</th>
-        <th>Bulb Type</th>
-        <th>Position</th>
-        <th>Note</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td colspan="12" style="text-align:center;">Part results will appear here.</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<script>
-async function fetchCSVList() {
-  const res = await fetch("csv_manifest.json");
-  return await res.json();
-}
-
-function extractFields(note, fieldNames) {
-  if (!note) return '';
-  const fields = [];
-  fieldNames.forEach(name => {
-    const regex = new RegExp(`${name}\\s*:\\s*([^,]+)`, 'i');
-    const match = note.match(regex);
-    if (match) {
-      fields.push(`${name}: ${match[1].trim()}`);
+  <script>
+    async function fetchCSVList() {
+      const res = await fetch("csv_manifest.json");
+      if (!res.ok) throw new Error('Failed loading CSV manifest');
+      return await res.json();
     }
-  });
-  return fields.join(', ');
-}
 
-function getBulbIncludedValue(item) {
-  return item["Bulb Included"] || item["Bulbs Included"] || item["BulbIncluded"] || item["Bulb Included?"] || "";
-}
-
-async function loadAllCSVs(files) {
-  const allData = [];
-  for (const file of files) {
-    try {
-      const res = await fetch(file);
-      const csvText = await res.text();
-      const parsed = Papa.parse(csvText, { header: true, skipEmptyLines: true });
-      allData.push(...parsed.data);
-    } catch (err) {
-      console.warn(`Skipping file ${file}:`, err);
+    async function loadAllCSVs(files) {
+      const allData = [];
+      for (const file of files) {
+        try {
+          const res = await fetch(file);
+          if (!res.ok) throw new Error(`Failed loading ${file}`);
+          const text = await res.text();
+          const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+          allData.push(...parsed.data);
+        } catch (e) {
+          console.warn(`Skipping ${file}:`, e);
+        }
+      }
+      return allData;
     }
-  }
-  return allData;
-}
 
-async function searchByVIN() {
-  const vin = document.getElementById("vinInput").value.trim();
-  if (vin.length !== 17) {
-    alert("VIN must be 17 characters.");
-    return;
-  }
-  document.getElementById("vinInput").value = "";
-  document.getElementById("vehicleResult").innerHTML = "";
-  const tbody = document.querySelector("#partResult tbody");
-  tbody.innerHTML = "<tr><td colspan='12' style='text-align:center;'>Part results will appear here.</td></tr>";
+    function getBulbIncludedValue(item) {
+      return item["Bulb Included"] || item["Bulbs Included"] || item["BulbIncluded"] || item["Bulb Included?"] || "";
+    }
 
-  try {
-    const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
-    const data = await res.json();
-    const info = data.Results[0];
+    async function searchByVIN() {
+      const vin = document.getElementById("vinInput").value.trim();
+      if (vin.length !== 17) { alert("VIN must be 17 characters."); return; }
+      document.getElementById("vinInput").value = "";
+      const resBox = document.getElementById("vehicleResult");
+      resBox.innerHTML = "";
+      const tbody = document.querySelector("#partResult tbody");
+      tbody.innerHTML = `<tr><td colspan='12' style='text-align:center;'>Part results will appear here.</td></tr>`;
 
-    const displayText = `
+      try {
+        const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
+        const data = await res.json();
+        const info = data.Results[0];
+        resBox.innerHTML = `
 <b>VIN:</b> ${vin}<br>
 <b>Make:</b> ${info.Make}<br>
 <b>Model:</b> ${info.Model}<br>
 <b>Year:</b> ${info.ModelYear}<br>
 <b>Body:</b> ${info.BodyClass}<br>
 <b>Trim:</b> ${info.Trim}<br>
-<b>Engine:</b> ${info.EngineModel || 'N/A'} (${info.EngineCylinders || '?'} Cyl)<br>
+<b>Engine:</b> ${info.EngineModel||'N/A'} (${info.EngineCylinders||'?'} Cyl)<br>
 <b>Fuel Type:</b> ${info.FuelTypePrimary}<br>
 <b>Drive Type:</b> ${info.DriveType}<br>
-<b>GVWR:</b> ${info.GVWR || 'N/A'}`;
-
-    document.getElementById("vehicleResult").innerHTML = displayText;
-  } catch (err) {
-    document.getElementById("vehicleResult").textContent = "Error decoding VIN.";
-    console.error(err);
-  }
-}
-
-async function searchOEMPartslink(type) {
-  const inputId = type === 'oem' ? 'oemInput' : 'partslinkInput';
-  const value = document.getElementById(inputId).value.trim().toLowerCase();
-  if (!value) return;
-  document.getElementById(inputId).value = "";
-  document.getElementById("vehicleResult").innerHTML = "VIN results will appear here.";
-
-  const tbody = document.querySelector("#partResult tbody");
-  tbody.innerHTML = "<tr><td colspan='12' style='text-align:center;'>Searching...</td></tr>";
-
-  try {
-    const csvFiles = await fetchCSVList();
-    const data = await loadAllCSVs(csvFiles);
-
-    const results = data.filter(item =>
-      (type === 'oem' && item["OEM Number"]?.toLowerCase() === value) ||
-      (type === 'partslink' && item["Partslink Number"]?.toLowerCase() === value)
-    );
-
-    tbody.innerHTML = "";
-
-    if (results.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No results found.</td></tr>`;
-      return;
+<b>GVWR:</b> ${info.GVWR||'N/A'}`;
+      } catch (e) {
+        document.getElementById("vehicleResult").textContent = "Error decoding VIN.";
+        console.error(e);
+      }
     }
 
-    results.forEach(item => {
-      const dimensions = `${item.Length || '0'} x ${item.Width || '0'} x ${item.Height || '0'}`;
-      const customNote = extractFields(item["Note"], ["Material", "Part", "Color"]);
+    async function searchParts(type) {
+      const inputId = type === 'sku' ? 'skuInput' : 'partslinkInput';
+      const value = document.getElementById(inputId).value.trim().toLowerCase();
+      if (!value) return;
+      document.getElementById(inputId).value = "";
+      document.getElementById("vehicleResult").innerHTML = "VIN results will appear here.";
+      const tbody = document.querySelector("#partResult tbody");
+      tbody.innerHTML = `<tr><td colspan='12' style='text-align:center;'>Loading parts data...</td></tr>`;
 
-      const row = document.createElement("tr");
-      row.innerHTML = `
-        <td>${item["OEM Number"] || ""}</td>
-        <td>${item["Partslink Number"] || ""}</td>
-        <td>${item["Inventory Number"] || ""}</td>
-        <td>${item["Title"] || ""}</td>
-        <td>${item["Supplier"] || ""}</td>
-        <td>${item["Seller Cost"] || ""}</td>
-        <td>${dimensions}</td>
-        <td>${item["Weight (lbs)"] || ""}</td>
-        <td>${getBulbIncludedValue(item)}</td>
-        <td>${item["Bulb Type"] || ""}</td>
-        <td>${item["Position"] || ""}</td>
-        <td>${customNote || ""}</td>
-      `;
-      tbody.appendChild(row);
-    });
+      let files;
+      try { files = await fetchCSVList(); }
+      catch (e) {
+        console.error(e);
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">Error loading parts manifest.</td></tr>`;
+        return;
+      }
 
-  } catch (err) {
-    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">Error loading parts data.</td></tr>`;
-    console.error(err);
-  }
-}
-</script>
+      const data = await loadAllCSVs(files);
+      try {
+        let results = data.filter(item =>
+          (type==='sku' && item["Item SKU"]?.toLowerCase()===value) ||
+          (type==='partslink' && item["Partslink Number"]?.split(',').map(s=>s.trim().toLowerCase()).includes(value))
+        );
+        if (type==='sku' && results.length>1) results = [results[0]];
+        tbody.innerHTML = '';
+        if (!results.length) {
+          tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No results found.</td></tr>`;
+          return;
+        }
+        results.forEach(item => {
+          const dims = `${item.Length||0} x ${item.Width||0} x ${item.Height||0}`;
+          const note = item.Note||'';
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td>${item['OEM Number']||''}</td>
+            <td>${item['Partslink Number']||''}</td>
+            <td>${item['Item SKU']||''}</td>
+            <td>${item.Title||''}</td>
+            <td>${item.Supplier||''}</td>
+            <td>${item['Seller Cost']||''}</td>
+            <td>${dims}</td>
+            <td>${item['Weight']||''}</td>
+            <td>${getBulbIncludedValue(item)}</td>
+            <td>${item['Bulb Type']||''}</td>
+            <td>${item.Position||''}</td>
+            <td><details><summary>View Note</summary>${note}</details></td>
+          `;
+          tbody.appendChild(row);
+        });
+      } catch (e) {
+        console.error(e);
+        tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">Error processing parts data.</td></tr>`;
+      }
+    }
+  </script>
 
 </body>
 </html>

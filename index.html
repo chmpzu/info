@@ -13,9 +13,9 @@
     .author { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #666; }
     .search-container { display: flex; justify-content: center; gap: 10px; margin: 60px 0 30px; flex-wrap: wrap; }
     .search-group { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; background-color: #fff; }
-    .search-group input { border: none; padding: 10px; width: 180px; outline: none; font-size: 16px; background-color: #fff; }
-    .search-group select { border: none; padding: 8px; width: 120px; outline: none; font-size: 14px; background-color: #fff; }
-    .search-group button { background-color: #f1c40f; border: none; padding: 10px 14px; cursor: pointer; }
+    .search-group input { border: none; padding: 10px; width: 180px; outline: none; font-size: 16px; }
+    .search-group select { border: none; padding: 8px; width: 120px; outline: none; font-size: 14px; display: none; }
+    .search-group button { background-color: #f1c40f; border: none; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
     .search-group button:hover { background-color: #d4af37; }
     .search-group button svg { width: 16px; height: 16px; fill: #fff; }
     .result-box { background-color: #fffdf0; border: 1px solid #eee; padding: 15px; margin-bottom: 30px; font-size: 16px; border-radius: 6px; }
@@ -33,19 +33,24 @@
   <div class="author">By: Christine Anastacio</div>
 
   <div class="search-container">
+    <!-- VIN Search -->
     <div class="search-group">
-      <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="if(event.key==='Enter') searchByVIN()">
+      <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="if(event.key==='Enter') searchByVIN()" />
       <button onclick="searchByVIN()">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
     </div>
+
+    <!-- SKU Search -->
     <div class="search-group">
-      <input type="text" id="skuInput" placeholder="Enter SKU" onkeydown="if(event.key==='Enter') searchParts('sku')">
+      <input type="text" id="skuInput" placeholder="Enter SKU" oninput="toggleSupplier(this.value)" onkeydown="if(event.key==='Enter') searchParts('sku')" />
       <button onclick="searchParts('sku')">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
     </div>
-    <div class="search-group supplier-group" style="display:none;">
+
+    <!-- Supplier Dropdown -->
+    <div class="search-group">
       <select id="supplierSelect">
         <option value="">Supplier</option>
         <option value="DEPO">DEPO</option>
@@ -55,8 +60,10 @@
         <option value="LKQ">LKQ</option>
       </select>
     </div>
+
+    <!-- Partslink Search -->
     <div class="search-group">
-      <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="if(event.key==='Enter') searchParts('partslink')">
+      <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="if(event.key==='Enter') searchParts('partslink')" />
       <button onclick="searchParts('partslink')">
         <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
       </button>
@@ -89,145 +96,126 @@
   </div>
 
   <script>
-    // Toggle supplier dropdown visibility based on SKU input
-    document.getElementById('skuInput').addEventListener('input', function() {
-      const supplierGroup = document.querySelector('.supplier-group');
-      if (this.value.trim() !== '') {
-        supplierGroup.style.display = 'flex';
-      } else {
-        supplierGroup.style.display = 'none';
-        document.getElementById('supplierSelect').value = '';
-      }
-    });
+    function toggleSupplier(val) {
+      const sel = document.getElementById('supplierSelect');
+      sel.style.display = val.trim() ? 'flex' : 'none';
+      if (!val.trim()) sel.value = '';
+    }
 
     async function fetchCSVList() {
-      const res = await fetch("csv_manifest.json");
+      const res = await fetch('csv_manifest.json');
       if (!res.ok) throw new Error('Failed loading CSV manifest');
       return await res.json();
     }
 
     async function loadAllCSVs(files) {
-      const allData = [];
-      for (const file of files) {
+      const all = [];
+      for (const f of files) {
         try {
-          const res = await fetch(file);
-          if (!res.ok) throw new Error(`Failed loading ${file}`);
-          const text = await res.text();
-          const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-          allData.push(...parsed.data);
+          const r = await fetch(f);
+          if (!r.ok) throw new Error(`Failed loading ${f}`);
+          const t = await r.text();
+          const p = Papa.parse(t, { header: true, skipEmptyLines: true });
+          all.push(...p.data);
         } catch (e) {
-          console.warn(`Skipping ${file}:`, e);
+          console.warn(`Skipping ${f}:`, e);
         }
       }
-      return allData;
+      return all;
     }
 
     async function loadCSV(file) {
       try {
-        const res = await fetch(file);
-        if (!res.ok) throw new Error(`Failed loading ${file}`);
-        const text = await res.text();
-        const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
-        return parsed.data;
+        const r = await fetch(file);
+        if (!r.ok) throw new Error(`Failed loading ${file}`);
+        const t = await r.text();
+        const p = Papa.parse(t, { header: true, skipEmptyLines: true });
+        return p.data;
       } catch (e) {
         console.error(e);
         return [];
       }
     }
 
-    function getBulbIncludedValue(item) {
-      return item['Bulb Included'] || item['Bulbs Included'] || item['BulbIncluded'] || '';
+    function getBulbIncludedValue(it) {
+      return it['Bulb Included'] || it['Bulbs Included'] || it['BulbIncluded'] || '';
     }
 
     async function searchByVIN() {
       const vin = document.getElementById('vinInput').value.trim();
       if (vin.length !== 17) { alert('VIN must be 17 characters.'); return; }
       document.getElementById('vinInput').value = '';
-      const resBox = document.getElementById('vehicleResult');
-      resBox.innerHTML = '';
+      const rb = document.getElementById('vehicleResult'); rb.innerHTML = '';
       document.querySelector('#partResult tbody').innerHTML = `<tr><td colspan='12' style='text-align:center;'>Part results will appear here.</td></tr>`;
-
       try {
-        const res = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
-        const data = await res.json();
-        const info = data.Results[0];
-        resBox.innerHTML = `
+        const r = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
+        const d = await r.json(); const i = d.Results[0];
+        rb.innerHTML = `
 <b>VIN:</b> ${vin}<br>
-<b>Make:</b> ${info.Make}<br>
-<b>Model:</b> ${info.Model}<br>
-<b>Year:</b> ${info.ModelYear}<br>
-<b>Body:</b> ${info.BodyClass}<br>
-<b>Trim:</b> ${info.Trim}<br>
-<b>Engine:</b> ${info.EngineModel || 'N/A'} (${info.EngineCylinders || '?'} Cyl)<br>
-<b>Fuel Type:</b> ${info.FuelTypePrimary}<br>
-<b>Drive Type:</b> ${info.DriveType}<br>
-<b>GVWR:</b> ${info.GVWR || 'N/A'}`;
+<b>Make:</b> ${i.Make}<br>
+<b>Model:</b> ${i.Model}<br>
+<b>Year:</b> ${i.ModelYear}<br>
+<b>Body:</b> ${i.BodyClass}<br>
+<b>Trim:</b> ${i.Trim}<br>
+<b>Engine:</b> ${i.EngineModel||'N/A'} (${i.EngineCylinders||'?'} Cyl)<br>
+<b>Fuel Type:</b> ${i.FuelTypePrimary}<br>
+<b>Drive Type:</b> ${i.DriveType}<br>
+<b>GVWR:</b> ${i.GVWR||'N/A'}`;
       } catch (e) {
-        resBox.textContent = 'Error decoding VIN.';
-        console.error(e);
+        rb.textContent = 'Error decoding VIN.'; console.error(e);
       }
     }
 
     async function searchParts(type) {
-      const value = (type === 'sku'
+      const val = (type==='sku'
         ? document.getElementById('skuInput').value.trim().toLowerCase()
         : document.getElementById('partslinkInput').value.trim().toLowerCase());
-      if (!value) return;
-
-      if (type === 'sku') document.getElementById('skuInput').value = '';
-      if (type === 'partslink') document.getElementById('partslinkInput').value = '';
-      document.getElementById('vehicleResult').innerHTML = 'VIN results will appear here.';
-
-      const tbody = document.querySelector('#partResult tbody');
-      tbody.innerHTML = `<tr><td colspan='12' style='text-align:center;'>Loading parts data...</td></tr>`;
+      if (!val) return;
+      if (type==='sku') document.getElementById('skuInput').value = '';
+      if (type==='partslink') document.getElementById('partslinkInput').value = '';
+      document.getElementById('vehicleResult').innerHTML='VIN results will appear here.';
+      const tb = document.querySelector('#partResult tbody'); tb.innerHTML = `<tr><td colspan='12' style='text-align:center;'>Loading parts data...</td></tr>`;
 
       let data = [];
-      if (type === 'sku') {
-        const supplier = document.getElementById('supplierSelect').value;
-        if (!supplier) { alert('Please select a supplier.'); return; }
-        const file = `${supplier}1.csv`;
-        data = await loadCSV(file);
+      if (type==='sku') {
+        const sup = document.getElementById('supplierSelect').value;
+        if (!sup) { alert('Please select a supplier.'); return; }
+        data = await loadCSV(`${sup}1.csv`);
       } else {
-        const files = await fetchCSVList();
-        data = await loadAllCSVs(files);
+        const fs = await fetchCSVList();
+        data = await loadAllCSVs(fs);
       }
 
-      let results = data.filter(item =>
-        (type === 'sku' && item['Item SKU']?.toLowerCase() === value) ||
-        (type === 'partslink' && item['Partslink Number']
-          ?.split(',')
-          .map(s => s.trim().toLowerCase())
-          .includes(value))
+      let res = data.filter(it =>
+        (type==='sku' && it['Item SKU']?.toLowerCase()===val) ||
+        (type==='partslink' && it['Partslink Number']?.split(',').map(s=>s.trim().toLowerCase()).includes(val))
       );
-
-      if (type === 'sku' && results.length > 1) results = [results[0]];
-
-      tbody.innerHTML = '';
-      if (results.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No results found.</td></tr>`;
+      if (type==='sku' && res.length>1) res=[res[0]];
+      tb.innerHTML='';
+      if (res.length===0) {
+        tb.innerHTML = `<tr><td colspan=\"12\" style=\"text-align:center;\">No results found.</td></tr>`;
         return;
       }
-
-      results.forEach(item => {
-        const dims = `${item.Length || 0} x ${item.Width || 0} x ${item.Height || 0}`;
-        const note = item.Note || '';
-        const weight = item.Weight || '';
+      res.forEach(it => {
+        const dims = `${it.Length||0} x ${it.Width||0} x ${it.Height||0}`;
+        const note = it.Note||'';
+        const weight = it.Weight||'';
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${item['OEM Number'] || ''}</td>
-          <td>${item['Partslink Number'] || ''}</td>
-          <td>${item['Item SKU'] || ''}</td>
-          <td>${item.Title || ''}</td>
-          <td>${item.Supplier || ''}</td>
-          <td>${item['Seller Cost'] || ''}</td>
+          <td>${it['OEM Number']||''}</td>
+          <td>${it['Partslink Number']||''}</td>
+          <td>${it['Item SKU']||''}</td>
+          <td>${it.Title||''}</td>
+          <td>${it.Supplier||''}</td>
+          <td>${it['Seller Cost']||''}</td>
           <td>${dims}</td>
           <td>${weight}</td>
-          <td>${getBulbIncludedValue(item)}</td>
-          <td>${item['Bulb Type'] || ''}</td>
-          <td>${item.Position || ''}</td>
+          <td>${getBulbIncludedValue(it)}</td>
+          <td>${it['Bulb Type']||''}</td>
+          <td>${it.Position||''}</td>
           <td><details><summary>View Note</summary>${note}</details></td>
         `;
-        tbody.appendChild(row);
+        tb.appendChild(row);
       });
     }
   </script>

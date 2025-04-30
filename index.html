@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Product Fitment and Specification</title>
+  <title>VIN Decoder and Product Info</title>
 
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
@@ -31,7 +31,7 @@
 </head>
 <body>
 
-  <h1>Product Fitment and Specification</h1>
+  <h1>VIN Decoder and Product Info</h1>
   <div class="author">By: Christine Anastacio</div>
 
   <div class="search-container">
@@ -168,15 +168,20 @@
     }
 
     async function searchParts(type) {
-      const val = type==='sku'
-        ? document.getElementById('skuInput').value.trim().toLowerCase()
-        : document.getElementById('partslinkInput').value.trim().toLowerCase();
-      if (!val) return;
+      // Capture raw input for display
+      const rawVal = type==='sku'
+        ? document.getElementById('skuInput').value.trim()
+        : document.getElementById('partslinkInput').value.trim();
+      const val = rawVal.toLowerCase();
+      if (!rawVal) return;
 
+      // Clear inputs
       if (type==='sku') document.getElementById('skuInput').value = '';
       if (type==='partslink') document.getElementById('partslinkInput').value = '';
+
+      // Display search title with raw value
+      document.getElementById('resultTitle').textContent = `Results for ${rawVal}`;
       document.getElementById('vehicleResult').innerHTML = 'VIN results will appear here.';
-      document.getElementById('resultTitle').textContent = `Results for ${type.toUpperCase()}`;
 
       const tb = document.querySelector('#partResult tbody');
       tb.innerHTML = `<tr><td colspan='12' style='text-align:center;'>Loading parts data...</td></tr>`;
@@ -185,9 +190,11 @@
       if (type==='sku') {
         const sup = document.getElementById('supplierSelect').value;
         if (!sup) { alert('Please select a supplier.'); return; }
-        // Load all CSVs for the selected supplier dynamically
         const allFiles = await fetchCSVList();
-        const supplierFiles = allFiles.filter(f => f.toUpperCase().startsWith(sup.toUpperCase()));
+        const supplierFiles = allFiles.filter(f => {
+          const fileName = f.split('/').pop();
+          return fileName.toUpperCase().startsWith(sup.toUpperCase());
+        });
         data = await loadAllCSVs(supplierFiles);
       } else {
         const fs = await fetchCSVList();

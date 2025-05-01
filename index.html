@@ -57,7 +57,7 @@
       outline: none;
       font-size: 16px;
       color: var(--text-color);
-      border-radius: 4px 0 0 4px; /* round left corners */
+      border-radius: 4px 0 0 4px;
     }
     .search-group button {
       background-color: var(--button-bg);
@@ -67,7 +67,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 0 4px 4px 0; /* round right corners */
+      border-radius: 0 4px 4px 0;
     }
     .search-group button:hover {
       background-color: var(--button-hover);
@@ -206,7 +206,9 @@
           <th>Note</th>
         </tr>
       </thead>
-      <tbody></tbody>
+      <tbody>
+        <tr><td colspan='12' style='text-align:center;'>Part results will appear here.</td></tr>
+      </tbody>
     </table>
   </div>
 
@@ -244,24 +246,28 @@
     }
 
     function getBulbIncludedValue(it) {
-      return it['Bulb Included'] || it['Bulbs Included'] || it['BulbIncluded'] || '';  
+      return it['Bulb Included'] || it['Bulbs Included'] || it['BulbIncluded'] || '';
     }
 
     async function searchByVIN() {
       const vin = document.getElementById('vinInput').value.trim();
       if (vin.length !== 17) { alert('VIN must be 17 characters.'); return; }
       document.getElementById('vinInput').value = '';
-      document.getElementById('vehicleResult').innerHTML = '';
+      const vehicleResult = document.getElementById('vehicleResult');
+      vehicleResult.textContent = ''; 
       document.getElementById('resultTitle').textContent = '';
       document.querySelector('#partResult tbody').innerHTML =
         `<tr><td colspan='12' style='text-align:center;'>Part results will appear here.</td></tr>`;
+
+      // Loading indicator
+      vehicleResult.textContent = 'Looking up VIN…';
 
       try {
         const r = await fetch(
           `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`
         );
         const d = await r.json(), i = d.Results[0];
-        document.getElementById('vehicleResult').innerHTML = `
+        vehicleResult.innerHTML = `
 <b>VIN:</b> ${vin}<br>
 <b>Make:</b> ${i.Make}<br>
 <b>Model:</b> ${i.Model}<br>
@@ -273,7 +279,7 @@
 <b>Drive Type:</b> ${i.DriveType}<br>
 <b>GVWR:</b> ${i.GVWR || 'N/A'}<br>`;
       } catch (e) {
-        document.getElementById['vehicleResult'].textContent = 'Error decoding VIN.';
+        vehicleResult.textContent = 'Error decoding VIN.';
         console.error(e);
       }
     }
@@ -290,6 +296,10 @@
 
       document.getElementById('resultTitle').textContent = `Results for ${rawVal}`;
       document.getElementById('vehicleResult').innerHTML = 'VIN results will appear here.';
+
+      const tb = document.querySelector('#partResult tbody');
+      // Loading row
+      tb.innerHTML = `<tr><td colspan="12" style="text-align:center;">Loading…</td></tr>`;
 
       const allFiles = await fetchCSVList();
       const filesToLoad = type === 'sku'
@@ -309,10 +319,11 @@
       );
       if (type === 'sku' && results.length > 1) results = [results[0]];
 
-      const tb = document.querySelector('#partResult tbody');
+      // Clear loading
       tb.innerHTML = '';
+
       if (results.length === 0) {
-        tb.innerHTML = `<tr><td colspan=\"12\" style=\"text-align:center;\">No results found.</td></tr>`;
+        tb.innerHTML = `<tr><td colspan="12" style="text-align:center;">No results found.</td></tr>`;
         return;
       }
 

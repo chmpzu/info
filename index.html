@@ -8,25 +8,128 @@
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
 
   <style>
-    body { position: relative; font-family: Arial, sans-serif; background-color: #fff8dc; color: #333; padding: 20px; }
-    h1 { color: #d4af37; text-align: center; margin: 0 0 10px; }
-    .author { position: absolute; top: 20px; right: 20px; font-size: 14px; color: #666; }
-    .search-container { display: flex; justify-content: center; gap: 10px; margin: 50px 0; flex-wrap: wrap; }
-    .search-group { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 6px; overflow: hidden; background-color: #fff; }
-    .search-group input { border: none; padding: 10px; width: 180px; outline: none; font-size: 16px; }
-    .search-group button { background-color: #f1c40f; border: none; padding: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-    .search-group button:hover { background-color: #d4af37; }
-    .search-group button svg { width: 16px; height: 16px; fill: #fff; }
-    .supplier-group { display: none; margin-top: 5px; }
-    .supplier-group select { border: 1px solid #ccc; border-radius: 6px; padding: 8px; width: 120px; font-size: 14px; }
-    .result-box { background-color: #fffdf0; border: 1px solid #eee; padding: 15px; margin-bottom: 30px; font-size: 16px; border-radius: 6px; }
-    .result-title { margin-bottom: 10px; font-weight: bold; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; background-color: #fffef3; color: #333; }
-    th, td { border: 1px solid #ddd; padding: 10px; text-align: center; vertical-align: top; }
-    th { background-color: #fff2aa; font-weight: bold; }
-    td { background-color: #fff; }
-    details { text-align: left; }
-    details summary { cursor: pointer; font-weight: bold; }
+    :root {
+      --bg-color: #ffffff;
+      --text-color: #202124;
+      --button-bg: #1a73e8;
+      --button-hover: #1669c1;
+      --border-color: #dadce0;
+      --table-header-bg: #f1f3f4;
+    }
+    body {
+      position: relative;
+      font-family: Arial, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      padding: 20px;
+    }
+    h1 {
+      color: var(--text-color);
+      text-align: center;
+      margin: 0 0 10px;
+    }
+    .author {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 14px;
+      color: #5f6368;
+    }
+    .search-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 50px 0;
+      flex-wrap: wrap;
+    }
+    .search-group {
+      display: flex;
+      align-items: center;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      overflow: hidden;
+      background-color: var(--bg-color);
+    }
+    .search-group input {
+      border: none;
+      padding: 10px;
+      width: 180px;
+      outline: none;
+      font-size: 16px;
+      color: var(--text-color);
+      border-radius: 4px 0 0 4px; /* round left corners */
+    }
+    .search-group button {
+      background-color: var(--button-bg);
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 0 4px 4px 0; /* round right corners */
+    }
+    .search-group button:hover {
+      background-color: var(--button-hover);
+    }
+    .search-group button svg {
+      width: 16px;
+      height: 16px;
+      fill: #ffffff;
+    }
+    .supplier-group {
+      display: none;
+      margin-top: 5px;
+    }
+    .supplier-group select {
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 8px;
+      width: 120px;
+      font-size: 14px;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+    }
+    .result-box {
+      background-color: var(--bg-color);
+      border: 1px solid var(--border-color);
+      padding: 15px;
+      margin-bottom: 30px;
+      font-size: 16px;
+      border-radius: 4px;
+    }
+    .result-title {
+      margin-bottom: 10px;
+      font-weight: bold;
+      color: var(--text-color);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      background-color: var(--bg-color);
+    }
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 10px;
+      text-align: center;
+      vertical-align: top;
+      color: var(--text-color);
+    }
+    th {
+      background-color: var(--table-header-bg);
+      font-weight: bold;
+    }
+    td {
+      background-color: var(--bg-color);
+    }
+    details {
+      text-align: left;
+    }
+    details summary {
+      cursor: pointer;
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -37,18 +140,24 @@
   <div class="search-container">
     <!-- VIN Search -->
     <div class="search-group">
-      <input type="text" id="vinInput" placeholder="Enter VIN" onkeydown="if(event.key==='Enter') searchByVIN()" />
+      <input type="text" id="vinInput" placeholder="Enter VIN"
+             onkeydown="if(event.key==='Enter') searchByVIN()" />
       <button onclick="searchByVIN()">
-        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+        <svg viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/>
+        </svg>
       </button>
     </div>
 
     <!-- SKU Search -->
     <div class="search-group">
       <input type="text" id="skuInput" placeholder="Enter SKU"
-             oninput="toggleSupplier(this.value)" onkeydown="if(event.key==='Enter') searchParts('sku')" />
+             oninput="toggleSupplier(this.value)"
+             onkeydown="if(event.key==='Enter') searchParts('sku')" />
       <button onclick="searchParts('sku')">
-        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+        <svg viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/>
+        </svg>
       </button>
     </div>
     <div class="supplier-group">
@@ -64,14 +173,20 @@
 
     <!-- Partslink Search -->
     <div class="search-group">
-      <input type="text" id="partslinkInput" placeholder="Enter Partslink" onkeydown="if(event.key==='Enter') searchParts('partslink')" />
+      <input type="text" id="partslinkInput" placeholder="Enter Partslink"
+             onkeydown="if(event.key==='Enter') searchParts('partslink')" />
       <button onclick="searchParts('partslink')">
-        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/></svg>
+        <svg viewBox="0 0 24 24">
+          <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16a6.471 6.471 0 0 0 4.23-1.57l.27.28v.79l5 5L20.5 19l-5-5zm-6 0C8 14 6 12 6 9.5S8 5 10.5 5 15 7 15 9.5 13 14 10.5 14z"/>
+        </svg>
       </button>
     </div>
   </div>
 
-  <div class="result-box" id="vehicleResult">VIN results will appear here.</div>
+  <div class="result-box" id="vehicleResult">
+    VIN results will appear here.
+  </div>
+
   <div class="result-box">
     <div class="result-title" id="resultTitle"></div>
     <table id="partResult">
@@ -99,8 +214,12 @@
     function toggleSupplier(val) {
       const grp = document.querySelector('.supplier-group');
       const sel = document.getElementById('supplierSelect');
-      if (val.trim()) grp.style.display = 'block';
-      else { grp.style.display = 'none'; sel.value = ''; }
+      if (val.trim()) {
+        grp.style.display = 'block';
+      } else {
+        grp.style.display = 'none';
+        sel.value = ''; 
+      }
     }
 
     async function fetchCSVList() {
@@ -108,6 +227,7 @@
       if (!res.ok) throw new Error('Failed loading CSV manifest');
       return await res.json();
     }
+
     async function loadAllCSVs(files) {
       const all = [];
       for (const f of files) {
@@ -116,26 +236,15 @@
           if (!r.ok) throw new Error(`Failed loading ${f}`);
           const t = await r.text();
           all.push(...Papa.parse(t, { header: true, skipEmptyLines: true }).data);
-        } catch(e) {
+        } catch (e) {
           console.warn(`Skipping ${f}:`, e);
         }
       }
       return all;
     }
-    async function loadCSV(file) {
-      try {
-        const r = await fetch(file);
-        if (!r.ok) throw new Error(`Failed loading ${file}`);
-        const t = await r.text();
-        return Papa.parse(t, { header: true, skipEmptyLines: true }).data;
-      } catch(e) {
-        console.error(e);
-        return [];
-      }
-    }
 
     function getBulbIncludedValue(it) {
-      return it['Bulb Included'] || it['Bulbs Included'] || it['BulbIncluded'] || '';
+      return it['Bulb Included'] || it['Bulbs Included'] || it['BulbIncluded'] || '';  
     }
 
     async function searchByVIN() {
@@ -148,7 +257,9 @@
         `<tr><td colspan='12' style='text-align:center;'>Part results will appear here.</td></tr>`;
 
       try {
-        const r = await fetch(`https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`);
+        const r = await fetch(
+          `https://vpic.nhtsa.dot.gov/api/vehicles/decodevinvaluesextended/${vin}?format=json`
+        );
         const d = await r.json(), i = d.Results[0];
         document.getElementById('vehicleResult').innerHTML = `
 <b>VIN:</b> ${vin}<br>
@@ -157,79 +268,71 @@
 <b>Year:</b> ${i.ModelYear}<br>
 <b>Body:</b> ${i.BodyClass}<br>
 <b>Trim:</b> ${i.Trim}<br>
-<b>Engine:</b> ${i.EngineModel||'N/A'} (${i.EngineCylinders||'?'} Cyl)<br>
+<b>Engine:</b> ${i.EngineModel || 'N/A'} (${i.EngineCylinders || '?'} Cyl)<br>
 <b>Fuel Type:</b> ${i.FuelTypePrimary}<br>
 <b>Drive Type:</b> ${i.DriveType}<br>
-<b>GVWR:</b> ${i.GVWR||'N/A'}`;
-      } catch(e) {
-        document.getElementById('vehicleResult').textContent = 'Error decoding VIN.';
+<b>GVWR:</b> ${i.GVWR || 'N/A'}<br>`;
+      } catch (e) {
+        document.getElementById['vehicleResult'].textContent = 'Error decoding VIN.';
         console.error(e);
       }
     }
 
     async function searchParts(type) {
-      // Capture raw input for display
-      const rawVal = type==='sku'
+      const rawVal = type === 'sku'
         ? document.getElementById('skuInput').value.trim()
         : document.getElementById('partslinkInput').value.trim();
-      const val = rawVal.toLowerCase();
       if (!rawVal) return;
 
-      // Clear inputs
-      if (type==='sku') document.getElementById('skuInput').value = '';
-      if (type==='partslink') document.getElementById('partslinkInput').value = '';
+      const val = rawVal.toLowerCase();
+      if (type === 'sku') document.getElementById('skuInput').value = '';
+      if (type === 'partslink') document.getElementById('partslinkInput').value = '';
 
-      // Display search title with raw value
       document.getElementById('resultTitle').textContent = `Results for ${rawVal}`;
       document.getElementById('vehicleResult').innerHTML = 'VIN results will appear here.';
 
-      const tb = document.querySelector('#partResult tbody');
-      tb.innerHTML = `<tr><td colspan='12' style='text-align:center;'>Loading parts data...</td></tr>`;
+      const allFiles = await fetchCSVList();
+      const filesToLoad = type === 'sku'
+        ? allFiles.filter(f =>
+            f.split('/').pop().toUpperCase().startsWith(
+              document.getElementById('supplierSelect').value.toUpperCase()
+            )
+          )
+        : allFiles;
 
-      let data = [];
-      if (type==='sku') {
-        const sup = document.getElementById('supplierSelect').value;
-        if (!sup) { alert('Please select a supplier.'); return; }
-        const allFiles = await fetchCSVList();
-        const supplierFiles = allFiles.filter(f => {
-          const fileName = f.split('/').pop();
-          return fileName.toUpperCase().startsWith(sup.toUpperCase());
-        });
-        data = await loadAllCSVs(supplierFiles);
-      } else {
-        const fs = await fetchCSVList();
-        data = await loadAllCSVs(fs);
-      }
+      const data = await loadAllCSVs(filesToLoad);
 
       let results = data.filter(it =>
-        (type==='sku' && it['Item SKU']?.toLowerCase()===val) ||
-        (type==='partslink' && it['Partslink Number']?.split(',').map(s=>s.trim().toLowerCase()).includes(val))
+        (type === 'sku' && it['Item SKU']?.toLowerCase() === val) ||
+        (type === 'partslink' && it['Partslink Number']
+           ?.split(',').map(s => s.trim().toLowerCase()).includes(val))
       );
-      if (type==='sku' && results.length>1) results = [results[0]];
+      if (type === 'sku' && results.length > 1) results = [results[0]];
 
+      const tb = document.querySelector('#partResult tbody');
       tb.innerHTML = '';
-      if (results.length===0) {
-        tb.innerHTML = `<tr><td colspan="12" style="text-align:center;">No results found.</td></tr>`;
+      if (results.length === 0) {
+        tb.innerHTML = `<tr><td colspan=\"12\" style=\"text-align:center;\">No results found.</td></tr>`;
         return;
       }
 
       results.forEach(it => {
-        const dims = `${it.Length||0} x ${it.Width||0} x ${it.Height||0}`;
-        const note = it.Note||'';
-        const weight = it.Weight||'';
+        const dims = `${it.Length || 0} x ${it.Width || 0} x ${it.Height || 0}`;
+        const note = it.Note || '';
+        const weight = it.Weight || '';
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td>${it['OEM Number']||''}</td>
-          <td>${it['Partslink Number']||''}</td>
-          <td>${it['Item SKU']||''}</td>
-          <td>${it.Title||''}</td>
-          <td>${it.Supplier||''}</td>
-          <td>${it['Seller Cost']||''}</td>
+          <td>${it['OEM Number'] || ''}</td>
+          <td>${it['Partslink Number'] || ''}</td>
+          <td>${it['Item SKU'] || ''}</td>
+          <td>${it.Title || ''}</td>
+          <td>${it.Supplier || ''}</td>
+          <td>${it['Seller Cost'] || ''}</td>
           <td>${dims}</td>
           <td>${weight}</td>
           <td>${getBulbIncludedValue(it)}</td>
-          <td>${it['Bulb Type']||''}</td>
-          <td>${it.Position||''}</td>
+          <td>${it['Bulb Type'] || ''}</td>
+          <td>${it.Position || ''}</td>
           <td><details><summary>View Note</summary>${note}</details></td>
         `;
         tb.appendChild(row);

@@ -227,7 +227,8 @@
     async function fetchCSVList() {
       const res = await fetch('csv_manifest.json');
       if (!res.ok) throw new Error('Failed loading CSV manifest');
-      return await res.json();
+      const data = await res.json();
+      return data.csv_files;
     }
 
     async function loadAllCSVs(files) {

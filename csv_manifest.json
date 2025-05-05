@@ -1,17 +1,19 @@
-[
-  "DEPO1.csv",
-  "DEPO2.csv",
-  "DEPO3.csv",
-  "TYC1.csv",
-  "TYC2.csv",
-  "TYC3.csv",
-  "EAGLE1.csv",
-  "KSI1.csv",
-  "KSI2.csv",
-  "KSI3.csv",
-  "LKQ1.csv",
-  "LKQ2.csv",
-  "LKQ3.csv",
-  "LKQ4.csv",
-  "LKQ5.csv"
-]
+{
+  "csv_files": [
+    "csv_files/DEPO1.csv",
+    "csv_files/DEPO2.csv",
+    "csv_files/DEPO3.csv",
+    "csv_files/TYC1.csv",
+    "csv_files/TYC2.csv",
+    "csv_files/TYC3.csv",
+    "csv_files/EAGLE1.csv",
+    "csv_files/KSI1.csv",
+    "csv_files/KSI2.csv",
+    "csv_files/KSI3.csv",
+    "csv_files/LKQ1.csv",
+    "csv_files/LKQ2.csv",
+    "csv_files/LKQ3.csv",
+    "csv_files/LKQ4.csv",
+    "csv_files/LKQ5.csv"
+  ]
+}

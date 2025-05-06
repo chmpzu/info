@@ -1,19 +1,20 @@
 {
   "csv_files": [
     "csv_files/DEPO1.csv",
-    "csv_files/DEPO2.csv",
-    "csv_files/DEPO3.csv",
     "csv_files/TYC1.csv",
     "csv_files/TYC2.csv",
     "csv_files/TYC3.csv",
     "csv_files/EAGLE1.csv",
     "csv_files/KSI1.csv",
     "csv_files/KSI2.csv",
-    "csv_files/KSI3.csv",
     "csv_files/LKQ1.csv",
     "csv_files/LKQ2.csv",
-    "csv_files/LKQ3.csv",
-    "csv_files/LKQ4.csv",
-    "csv_files/LKQ5.csv"
+    "csv_files/KSOURCE1.csv",
+    "csv_files/MEYER1.csv",
+    "csv_files/USAUTO1.csv",
+    "csv_files/USAUTO2.csv",
+    "csv_files/USAUTO3.csv",
+    "csv_files/TONSA1.csv",
+    "csv_files/TURN141.csv"
   ]
 }
